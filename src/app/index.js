@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import invariant from 'invariant';
 import createHashHistory from 'history/createHashHistory';
-import { isString, isHTMLElement, isFunction } from '../utils';
+import { isString, isHTMLElement, isFunction } from '../utils/index';
 import create from '../redux/core';
 
 function App({ opts = {} }) {
