@@ -39,7 +39,7 @@ function App({ opts = {} }) {
     );
 
     if (!app._store) {
-      oldAppStart.call(app);
+      oldAppStart(app);
     }
 
     const store = app._store;

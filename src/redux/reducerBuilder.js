@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import createReducer from './createReducer';
 import invariant from 'invariant';
 
-export function buildReducer(options) {
+export function reducerBuilder(options) {
   let reducers = {};
   let reducerGroups = new Map();
   for (let key in options) {

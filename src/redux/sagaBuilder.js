@@ -2,7 +2,7 @@ import * as effects from 'redux-saga/lib/effects';
 import { takeEvery } from 'redux-saga';
 import * as Fetch from '../utils/fetch';
 
-export function buildRoot(options) {
+export function sagaBuilder(options) {
   const sagaArr = [];
   for (let key in options) {
     if (options.hasOwnProperty(key)) {

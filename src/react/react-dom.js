@@ -1,3 +1,3 @@
-import ReactDOM from 'src/react/react-dom';
+import ReactDOM from 'react-dom';
 
 export default ReactDOM;
