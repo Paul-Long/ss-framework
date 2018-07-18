@@ -2,6 +2,7 @@ import createSagaMiddleware from 'redux-saga';
 import createStore from './createStore';
 import { reducerBuilder } from './reducerBuilder';
 import { sagaBuilder } from './sagaBuilder';
+import 'react-redux';
 
 const cSagaMiddleware = createSagaMiddleware.default || createSagaMiddleware;
 
@@ -40,8 +41,7 @@ export default function create(createOpts = {}) {
 
     store.runSaga = sagaMiddleware.run;
     const sagas = sagaBuilder(app._models);
-
-    sagas.forEach(sagaMiddleware.run);
+    sagaMiddleware.run(sagas);
     setupApp(app);
 
   }

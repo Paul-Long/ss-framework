@@ -1,10 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import * as Routers from 'react-router-dom';
 import { Provider } from 'react-redux';
 import invariant from 'invariant';
 import createHashHistory from 'history/createHashHistory';
-import { isString, isHTMLElement, isFunction } from '../utils/index';
+import { isFunction, isHTMLElement, isString } from '../utils/index';
 import create from '../redux/core';
+import AsyncLoadModule from '../components/AsyncLoadModule';
+
+Routers.AsyncLoadModule = AsyncLoadModule;
 
 function App({ opts = {} }) {
   const {} = opts;
@@ -63,7 +67,7 @@ function App({ opts = {} }) {
 function getProvider(store, app) {
   return (
     <Provider store={store}>
-      {app._router(app)}
+      {app._router(app, Routers)}
     </Provider>
   );
 }

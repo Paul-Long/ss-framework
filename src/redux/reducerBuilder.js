@@ -62,7 +62,7 @@ export function initialReducerGroup(reducerGroup) {
       reducerAction = reducer.key;
     }
     invariant(
-      !reducerAction,
+      reducerAction,
       `[reducer.key] reducer key is not empty`,
     );
     handlers[reducerAction] = reducerHandler(reducer, 'loading', (state, action) => {
