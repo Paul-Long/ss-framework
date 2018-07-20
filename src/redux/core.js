@@ -33,14 +33,14 @@ export default function create(createOpts = {}) {
   function start(app) {
     const sagaMiddleware = cSagaMiddleware();
     const store = createStore({
-      reducers: reducerBuilder(app._models,),
+      reducers: reducerBuilder(app._models, onReducer),
       initialState: {},
       sagaMiddleware,
     });
     app._store = store;
 
     store.runSaga = sagaMiddleware.run;
-    const sagas = sagaBuilder(app._models);
+    const sagas = sagaBuilder(app._models, onEffect);
     sagaMiddleware.run(sagas);
     setupApp(app);
 

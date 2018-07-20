@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 import createReducer from './createReducer';
 import invariant from 'invariant';
 
-export function reducerBuilder(options) {
+export function reducerBuilder(options, onReducer) {
   let reducers = {};
   let reducerGroups = new Map();
   for (let key in options) {
@@ -19,7 +19,7 @@ export function reducerBuilder(options) {
     if (reducers.hasOwnProperty(key)) {
       throw Error('Duplicate key ' + key);
     }
-    reducers[key] = initialReducerGroup(reducerGroup);
+    reducers[key] = initialReducerGroup(reducerGroup, onReducer);
   }
   return combineReducers(reducers);
 }
@@ -45,7 +45,7 @@ function collectReducers(reducerGroups, reducers) {
   });
 }
 
-export function initialReducerGroup(reducerGroup) {
+export function initialReducerGroup(reducerGroup, onReducer) {
   const handlers = {};
   let initialState = {};
   for (let reducer of reducerGroup.values()) {
@@ -65,15 +65,27 @@ export function initialReducerGroup(reducerGroup) {
       reducerAction,
       `[reducer.key] reducer key is not empty`,
     );
+    const isFunc = typeof onReducer === 'function';
     handlers[reducerAction] = reducerHandler(reducer, 'loading', (state, action) => {
-      return { [reducer.resultKey]: null, payload: action.payload, success: false, loading: true, fromSocket: false };
+      let newState = {
+        [reducer.resultKey]: null,
+        payload: action.payload,
+        success: false,
+        loading: true,
+        fromSocket: false
+      };
+      if (isFunc) {
+        newState = onReducer(newState, state, action, 'loading');
+      }
+      return newState;
     });
     handlers[`${reducerAction}_SUCCESS`] = reducerHandler(reducer, 'success', (state, action) => {
+      let newState = {};
       let fromSocket = action.fromSocket;
       if (fromSocket && action.done) {
-        return action.result;
+        newState = action.result;
       } else {
-        return {
+        newState = {
           [reducer.resultKey]: action.result,
           payload: action.payload,
           success: true,
@@ -81,9 +93,23 @@ export function initialReducerGroup(reducerGroup) {
           fromSocket
         };
       }
+      if (isFunc) {
+        newState = onReducer(newState, state, action, 'success');
+      }
+      return newState;
     });
     handlers[`${reducerAction}_FAIL`] = reducerHandler(reducer, 'fail', (state, action) => {
-      return { payload: action.payload, error: action.error, success: false, loading: false, fromSocket: false };
+      let newState = {
+        payload: action.payload,
+        error: action.error,
+        success: false,
+        loading: false,
+        fromSocket: false
+      };
+      if (isFunc) {
+        newState = onReducer(newState, state, action, 'fail');
+      }
+      return newState;
     });
   }
   return createReducer(initialState, handlers);

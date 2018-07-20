@@ -2,7 +2,7 @@ import * as effects from 'redux-saga/effects';
 import { fork } from 'redux-saga';
 import * as Fetch from '../utils/fetch';
 
-export function sagaBuilder(options) {
+export function sagaBuilder(options, onEffect) {
   const sagaArr = [];
   for (let key in options) {
     if (options.hasOwnProperty(key)) {
@@ -10,7 +10,7 @@ export function sagaBuilder(options) {
       if (value instanceof Array) {
         for (let item of value) {
           if (item.url) {
-            sagaArr.push(createSaga(item));
+            sagaArr.push(createSaga(item, onEffect));
           }
         }
       } else {
@@ -22,7 +22,7 @@ export function sagaBuilder(options) {
     for (let saga of sagaArr) {
       yield effects.fork(saga);
     }
-  }
+  };
 }
 
 function bodyHandler(data, type, method) {
@@ -42,33 +42,47 @@ function bodyHandler(data, type, method) {
 
 function getEffect(item) {
   return function* baseEffect({ payload }, { fetch, option }) {
-    return fetch(item.url(payload), option);
+    return yield fetch(item.url(payload), option);
   };
 }
 
-export function createSaga(item) {
+export function createSaga(item, onEffect) {
   const action = item.action || item.key;
   return function* () {
     let take = item.takeEvery || effects.takeEvery;
     yield take(action, function* (actions) {
-      let result = {};
+      let response;
       const effect = item.effect || getEffect(item);
+      let putAction = {
+        type: action,
+        payload: actions.payload,
+      };
       try {
         let type = item.type || 'json';
         let bodyParser = item.body || bodyHandler;
         const option = createOptions(item.method, type, item.headers, bodyParser(actions.payload, type, item.method));
-        result = yield effect(actions, { fetch: Fetch.fetch, option }, ...effects, item);
+        response = yield effect(actions, { fetch: Fetch.fetch, option }, ...effects, item);
+        console.log(response);
       } catch (error) {
-        result.success = false;
-        result.errorMsg = error || '请求异常';
+        putAction.success = false;
+        putAction.loading = false;
+        putAction.result = null;
+        putAction.message = error || '请求异常';
+        putAction.type = `${putAction.type}_FAIl`;
+        yield effects.put(putAction);
       }
-      if (!result) {
-        return;
-      }
-      if (result.success) {
-        yield effects.put({ type: `${action}_SUCCESS`, result: result.content, payload: actions.payload });
-      } else {
-        yield effects.put({ type: `${action}_FAIL`, error: result.errorMsg, payload: actions.payload });
+      if (response) {
+        if (typeof onEffect === 'function') {
+          putAction.url = item.url(actions.payload);
+          putAction = yield onEffect(putAction, response);
+        } else {
+          putAction.loading = false;
+          putAction.success = response.status === 200;
+          putAction.status = response.status;
+          putAction.result = yield response.json();
+        }
+        putAction.type = `${putAction.type}${putAction.success ? '_SUCCESS' : '_FAIL'}`;
+        yield effects.put(putAction);
       }
     });
   };

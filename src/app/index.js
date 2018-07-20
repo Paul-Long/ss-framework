@@ -10,13 +10,15 @@ import AsyncLoadModule from '../components/AsyncLoadModule';
 
 Routers.AsyncLoadModule = AsyncLoadModule;
 
-function App({ opts = {} }) {
-  const {} = opts;
+function App(opts = {}) {
+  const {onEffect, onReducer} = opts;
   const history = opts.history || createHashHistory();
   const createOpts = {
     setupApp(app) {
       app._history = patchHistory(history);
-    }
+    },
+    onEffect,
+    onReducer,
   };
 
   const app = create(createOpts);
