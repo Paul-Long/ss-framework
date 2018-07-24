@@ -6,9 +6,6 @@ import invariant from 'invariant';
 import createHashHistory from 'history/createHashHistory';
 import { isFunction, isHTMLElement, isString } from '../utils/index';
 import create from '../redux/core';
-import AsyncLoadModule from '../components/AsyncLoadModule';
-
-Routers.AsyncLoadModule = AsyncLoadModule;
 
 function App(opts = {}) {
   const {onEffect, onReducer} = opts;

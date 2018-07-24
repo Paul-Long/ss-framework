@@ -62,7 +62,6 @@ export function createSaga(item, onEffect) {
         let bodyParser = item.body || bodyHandler;
         const option = createOptions(item.method, type, item.headers, bodyParser(actions.payload, type, item.method));
         response = yield effect(actions, { fetch: Fetch.fetch, option }, ...effects, item);
-        console.log(response);
       } catch (error) {
         putAction.success = false;
         putAction.loading = false;

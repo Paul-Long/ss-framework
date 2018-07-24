@@ -35,6 +35,5 @@ module.exports = {
   '@tooltip-bg': '#193d37',
   '@tooltip-arrow-width': '0px',
   '@popover-bg': '#172422',
-  '@popover-arrow-width': '0px',
-  '@icon-url': ''
+  '@popover-arrow-width': '0px'
 };
